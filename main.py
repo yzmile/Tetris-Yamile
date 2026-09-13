@@ -13,10 +13,51 @@ def mostrar_instrucciones():
     print("No dejes que las piezas lleguen hasta arriba.")
 
 
-def iniciar_juego():
-    print("\nIniciando juego...")
-    print("El tablero se agregará próximamente.")
+# NUEVA FUNCIÓN
+def crear_tablero():
+    filas = 20
+    columnas = 10
 
+    tablero = []
+
+    for i in range(filas):
+        fila = []
+
+        for j in range(columnas):
+            fila.append(0)
+
+        tablero.append(fila)
+
+    return tablero
+
+
+# NUEVA FUNCIÓN
+def mostrar_tablero(tablero):
+    print("ESTOY EN MOSTRAR_TABLERO")
+
+    print()
+
+    for fila in tablero:
+        print("|", end="")
+
+        for espacio in fila:
+            if espacio == 0:
+                print(" .", end="")
+            else:
+                print(" []", end="")
+
+        print(" |")
+
+    print()
+
+def iniciar_juego():
+    print("\n=== JUEGO ===")
+
+    tablero = crear_tablero()
+
+    tablero[5][4] = 1
+
+    mostrar_tablero(tablero)
 
 def main():
     while True:
