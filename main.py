@@ -5,6 +5,19 @@ def mostrar_menu():
     print("3. Salir")
 
 
+def mostrar_instrucciones():
+    print("\n=== INSTRUCCIONES ===")
+    print("El objetivo es completar líneas con las piezas.")
+    print("Las piezas caen desde la parte superior.")
+    print("Completá una línea para eliminarla.")
+    print("No dejes que las piezas lleguen hasta arriba.")
+
+
+def iniciar_juego():
+    print("\nIniciando juego...")
+    print("El tablero se agregará próximamente.")
+
+
 def main():
     while True:
         mostrar_menu()
@@ -12,10 +25,10 @@ def main():
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            print("Iniciando juego...")
+            iniciar_juego()
 
         elif opcion == "2":
-            print("Las instrucciones aparecerán aquí.")
+            mostrar_instrucciones()
 
         elif opcion == "3":
             print("Saliendo del juego...")
@@ -23,6 +36,8 @@ def main():
 
         else:
             print("Opción no válida.")
+
+        print()
 
 
 main()
