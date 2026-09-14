@@ -124,6 +124,10 @@ lineas_totales = 0
 nivel = 1
 
 velocidad_caida = 700
+
+# Velocidad cuando se mantiene presionada ↓
+velocidad_soft_drop = 50
+
 tiempo_caida = 0
 
 juego_terminado = False
@@ -330,6 +334,41 @@ def fijar_pieza():
 
 
 # =========================
+# SIGUIENTE PIEZA
+# =========================
+
+def siguiente_pieza():
+
+    global pieza_actual
+    global color_actual
+    global fila
+    global columna
+    global juego_terminado
+
+    pieza_actual = pieza_proxima
+    color_actual = color_proxima
+
+    fila = 0
+    columna = 4
+
+    crear_proxima_pieza()
+
+    for i in range(len(pieza_actual)):
+
+        for j in range(len(pieza_actual[i])):
+
+            if pieza_actual[i][j] == 1:
+
+                if tablero[
+                    fila + i
+                ][
+                    columna + j
+                ] != 0:
+
+                    juego_terminado = True
+
+
+# =========================
 # ELIMINAR LÍNEAS
 # =========================
 
@@ -366,7 +405,6 @@ def eliminar_lineas():
 
     nivel = (lineas_totales // 10) + 1
 
-    # Aumentar velocidad
     velocidad_caida = max(
         100,
         700 - ((nivel - 1) * 100)
@@ -390,7 +428,6 @@ def eliminar_lineas():
 
 def dibujar_bloque(x, y, color):
 
-    # Bloque principal
     pygame.draw.rect(
         pantalla,
         color,
@@ -402,7 +439,6 @@ def dibujar_bloque(x, y, color):
         )
     )
 
-    # Brillo superior
     pygame.draw.line(
         pantalla,
         BLANCO,
@@ -411,7 +447,6 @@ def dibujar_bloque(x, y, color):
         2
     )
 
-    # Brillo izquierdo
     pygame.draw.line(
         pantalla,
         BLANCO,
@@ -420,7 +455,6 @@ def dibujar_bloque(x, y, color):
         2
     )
 
-    # Borde
     pygame.draw.rect(
         pantalla,
         NEGRO,
@@ -469,7 +503,7 @@ def dibujar_tablero():
 
 
 # =========================
-# DIBUJAR PIEZA ACTUAL
+# DIBUJAR PIEZA
 # =========================
 
 def dibujar_pieza():
@@ -564,7 +598,7 @@ def dibujar_proxima_pieza():
 
 
 # =========================
-# PANEL LATERAL
+# PANEL
 # =========================
 
 def dibujar_panel():
@@ -634,50 +668,32 @@ def dibujar_panel():
 
     pantalla.blit(
         texto_puntos,
-        (
-            ANCHO_TABLERO + 25,
-            270
-        )
+        (ANCHO_TABLERO + 25, 270)
     )
 
     pantalla.blit(
         numero_puntos,
-        (
-            ANCHO_TABLERO + 25,
-            300
-        )
+        (ANCHO_TABLERO + 25, 300)
     )
 
     pantalla.blit(
         texto_nivel,
-        (
-            ANCHO_TABLERO + 25,
-            360
-        )
+        (ANCHO_TABLERO + 25, 360)
     )
 
     pantalla.blit(
         numero_nivel,
-        (
-            ANCHO_TABLERO + 25,
-            390
-        )
+        (ANCHO_TABLERO + 25, 390)
     )
 
     pantalla.blit(
         texto_lineas,
-        (
-            ANCHO_TABLERO + 25,
-            450
-        )
+        (ANCHO_TABLERO + 25, 450)
     )
 
     pantalla.blit(
         numero_lineas,
-        (
-            ANCHO_TABLERO + 25,
-            480
-        )
+        (ANCHO_TABLERO + 25, 480)
     )
 
 
@@ -692,7 +708,6 @@ def dibujar_game_over():
     )
 
     superficie.set_alpha(180)
-
     superficie.fill(NEGRO)
 
     pantalla.blit(
@@ -762,7 +777,6 @@ def dibujar_pausa():
     )
 
     superficie.set_alpha(180)
-
     superficie.fill(NEGRO)
 
     pantalla.blit(
@@ -806,7 +820,7 @@ def dibujar_pausa():
 
 
 # =========================
-# REINICIAR JUEGO
+# REINICIAR
 # =========================
 
 def reiniciar_juego():
@@ -921,7 +935,7 @@ def dibujar_instrucciones():
     )
 
     texto3 = fuente.render(
-        "Abajo: bajar",
+        "Abajo: acelerar caída",
         True,
         BLANCO
     )
@@ -1002,14 +1016,26 @@ crear_proxima_pieza()
 
 ejecutando = True
 
-
 while ejecutando:
 
     tiempo = reloj.tick(60)
 
-    # Solo acumular tiempo de caída si no está pausado
-    if not juego_pausado:
-        tiempo_caida += tiempo
+    # Detectar si ↓ está siendo mantenida
+    teclas = pygame.key.get_pressed()
+
+    if (
+        not juego_pausado
+        and not juego_terminado
+        and pantalla_actual == "juego"
+    ):
+
+        if teclas[pygame.K_DOWN]:
+
+            tiempo_caida += tiempo * 14
+
+        else:
+
+            tiempo_caida += tiempo
 
 
     # =========================
@@ -1034,14 +1060,11 @@ while ejecutando:
                 if evento.key == pygame.K_1:
 
                     reiniciar_juego()
-
                     pantalla_actual = "juego"
-
 
                 elif evento.key == pygame.K_2:
 
                     pantalla_actual = "instrucciones"
-
 
                 elif evento.key == pygame.K_3:
 
@@ -1065,14 +1088,12 @@ while ejecutando:
 
             elif pantalla_actual == "juego":
 
-                # Volver al menú
                 if evento.key == pygame.K_ESCAPE:
 
                     pantalla_actual = "menu"
                     juego_pausado = False
 
 
-                # Pausar / continuar
                 elif evento.key == pygame.K_p:
 
                     if not juego_terminado:
@@ -1080,7 +1101,6 @@ while ejecutando:
                         juego_pausado = not juego_pausado
 
 
-                # Si está Game Over
                 elif juego_terminado:
 
                     if evento.key == pygame.K_r:
@@ -1088,31 +1108,20 @@ while ejecutando:
                         reiniciar_juego()
 
 
-                # Si está jugando
                 elif not juego_pausado:
 
-                    # Izquierda
                     if evento.key == pygame.K_LEFT:
 
                         if puede_mover(-1):
                             columna -= 1
 
 
-                    # Derecha
                     elif evento.key == pygame.K_RIGHT:
 
                         if puede_mover(1):
                             columna += 1
 
 
-                    # Bajar
-                    elif evento.key == pygame.K_DOWN:
-
-                        if puede_bajar():
-                            fila += 1
-
-
-                    # Rotar
                     elif evento.key == pygame.K_UP:
 
                         nueva_pieza_rotada = rotar_pieza()
@@ -1123,7 +1132,7 @@ while ejecutando:
 
 
     # =========================
-    # CAÍDA AUTOMÁTICA
+    # CAÍDA
     # =========================
 
     if pantalla_actual == "juego":
@@ -1136,38 +1145,18 @@ while ejecutando:
 
                     fila += 1
 
+                    # Punto extra por Soft Drop
+                    if teclas[pygame.K_DOWN]:
+
+                        puntuacion += 1
+
                 else:
 
-                    # Fijar pieza actual
                     fijar_pieza()
 
-                    # Eliminar líneas
                     eliminar_lineas()
 
-                    # La próxima pieza pasa a ser la actual
-                    pieza_actual = pieza_proxima
-                    color_actual = color_proxima
-
-                    fila = 0
-                    columna = 4
-
-                    # Crear nueva próxima pieza
-                    crear_proxima_pieza()
-
-                    # Comprobar Game Over
-                    for i in range(len(pieza_actual)):
-
-                        for j in range(len(pieza_actual[i])):
-
-                            if pieza_actual[i][j] == 1:
-
-                                if tablero[
-                                    fila + i
-                                ][
-                                    columna + j
-                                ] != 0:
-
-                                    juego_terminado = True
+                    siguiente_pieza()
 
                 tiempo_caida = 0
 
