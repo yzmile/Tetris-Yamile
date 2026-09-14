@@ -11,7 +11,10 @@ TAMANO_BLOQUE = 30
 FILAS = 20
 COLUMNAS = 10
 
-ANCHO = COLUMNAS * TAMANO_BLOQUE
+ANCHO_TABLERO = COLUMNAS * TAMANO_BLOQUE
+ANCHO_PANEL = 200
+
+ANCHO = ANCHO_TABLERO + ANCHO_PANEL
 ALTO = FILAS * TAMANO_BLOQUE
 
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
@@ -26,6 +29,7 @@ reloj = pygame.time.Clock()
 
 NEGRO = (0, 0, 0)
 GRIS = (50, 50, 50)
+GRIS_OSCURO = (25, 25, 25)
 BLANCO = (255, 255, 255)
 
 CIAN = (0, 240, 240)
@@ -41,9 +45,9 @@ ROJO = (240, 0, 0)
 # FUENTES
 # =========================
 
-fuente = pygame.font.Font(None, 32)
+fuente = pygame.font.Font(None, 28)
+fuente_grande = pygame.font.Font(None, 40)
 fuente_titulo = pygame.font.Font(None, 70)
-fuente_grande = pygame.font.Font(None, 45)
 
 
 # =========================
@@ -125,7 +129,7 @@ juego_terminado = False
 
 
 # =========================
-# ESTADO DE LA PANTALLA
+# ESTADO DE PANTALLA
 # =========================
 
 pantalla_actual = "menu"
@@ -184,7 +188,23 @@ def nueva_pieza():
 
 
 # =========================
-# ROTAR PIEZA
+# PRÓXIMA PIEZA
+# =========================
+
+def crear_proxima_pieza():
+
+    global indice_proxima
+    global pieza_proxima
+    global color_proxima
+
+    indice_proxima = random.randrange(len(PIEZAS))
+
+    pieza_proxima = PIEZAS[indice_proxima]
+    color_proxima = COLORES_PIEZAS[indice_proxima]
+
+
+# =========================
+# ROTAR
 # =========================
 
 def rotar_pieza():
@@ -362,6 +382,37 @@ def eliminar_lineas():
 
 
 # =========================
+# DIBUJAR BLOQUE
+# =========================
+
+def dibujar_bloque(x, y, color):
+
+    pygame.draw.rect(
+        pantalla,
+        color,
+        (
+            x,
+            y,
+            TAMANO_BLOQUE,
+            TAMANO_BLOQUE
+        )
+    )
+
+    # Borde
+    pygame.draw.rect(
+        pantalla,
+        BLANCO,
+        (
+            x,
+            y,
+            TAMANO_BLOQUE,
+            TAMANO_BLOQUE
+        ),
+        1
+    )
+
+
+# =========================
 # DIBUJAR TABLERO
 # =========================
 
@@ -388,20 +439,15 @@ def dibujar_tablero():
 
             if tablero[fila_tablero][columna_tablero] != 0:
 
-                pygame.draw.rect(
-                    pantalla,
-                    tablero[fila_tablero][columna_tablero],
-                    (
-                        x,
-                        y,
-                        TAMANO_BLOQUE,
-                        TAMANO_BLOQUE
-                    )
+                dibujar_bloque(
+                    x,
+                    y,
+                    tablero[fila_tablero][columna_tablero]
                 )
 
 
 # =========================
-# DIBUJAR PIEZA
+# DIBUJAR PIEZA ACTUAL
 # =========================
 
 def dibujar_pieza():
@@ -415,38 +461,196 @@ def dibujar_pieza():
                 x = (columna + j) * TAMANO_BLOQUE
                 y = (fila + i) * TAMANO_BLOQUE
 
-                pygame.draw.rect(
-                    pantalla,
-                    color_actual,
-                    (
-                        x,
-                        y,
-                        TAMANO_BLOQUE,
-                        TAMANO_BLOQUE
-                    )
+                dibujar_bloque(
+                    x,
+                    y,
+                    color_actual
                 )
 
 
 # =========================
-# DIBUJAR INFORMACIÓN
+# DIBUJAR PRÓXIMA PIEZA
 # =========================
 
-def dibujar_informacion():
+def dibujar_proxima_pieza():
 
-    texto_puntos = fuente.render(
-        "Puntos: " + str(puntuacion),
+    titulo = fuente_grande.render(
+        "SIGUIENTE",
         True,
         BLANCO
+    )
+
+    pantalla.blit(
+        titulo,
+        (
+            ANCHO_TABLERO + 25,
+            40
+        )
+    )
+
+    # Área de la próxima pieza
+
+    pygame.draw.rect(
+        pantalla,
+        GRIS_OSCURO,
+        (
+            ANCHO_TABLERO + 20,
+            90,
+            160,
+            130
+        )
+    )
+
+    pygame.draw.rect(
+        pantalla,
+        GRIS,
+        (
+            ANCHO_TABLERO + 20,
+            90,
+            160,
+            130
+        ),
+        2
+    )
+
+    ancho = len(pieza_proxima[0]) * TAMANO_BLOQUE
+    alto = len(pieza_proxima) * TAMANO_BLOQUE
+
+    inicio_x = ANCHO_TABLERO + 20 + (160 - ancho) // 2
+    inicio_y = 90 + (130 - alto) // 2
+
+    for i in range(len(pieza_proxima)):
+
+        for j in range(len(pieza_proxima[i])):
+
+            if pieza_proxima[i][j] == 1:
+
+                x = inicio_x + j * TAMANO_BLOQUE
+                y = inicio_y + i * TAMANO_BLOQUE
+
+                dibujar_bloque(
+                    x,
+                    y,
+                    color_proxima
+                )
+
+
+# =========================
+# PANEL LATERAL
+# =========================
+
+def dibujar_panel():
+
+    pygame.draw.rect(
+        pantalla,
+        GRIS_OSCURO,
+        (
+            ANCHO_TABLERO,
+            0,
+            ANCHO_PANEL,
+            ALTO
+        )
+    )
+
+    pygame.draw.line(
+        pantalla,
+        GRIS,
+        (
+            ANCHO_TABLERO,
+            0
+        ),
+        (
+            ANCHO_TABLERO,
+            ALTO
+        ),
+        2
+    )
+
+    dibujar_proxima_pieza()
+
+    texto_puntos = fuente.render(
+        "Puntos",
+        True,
+        BLANCO
+    )
+
+    numero_puntos = fuente_grande.render(
+        str(puntuacion),
+        True,
+        CIAN
     )
 
     texto_nivel = fuente.render(
-        "Nivel: " + str(nivel),
+        "Nivel",
         True,
         BLANCO
     )
 
-    pantalla.blit(texto_puntos, (5, 5))
-    pantalla.blit(texto_nivel, (5, 30))
+    numero_nivel = fuente_grande.render(
+        str(nivel),
+        True,
+        AMARILLO
+    )
+
+    texto_lineas = fuente.render(
+        "Líneas",
+        True,
+        BLANCO
+    )
+
+    numero_lineas = fuente_grande.render(
+        str(lineas_totales),
+        True,
+        VERDE
+    )
+
+    pantalla.blit(
+        texto_puntos,
+        (
+            ANCHO_TABLERO + 25,
+            270
+        )
+    )
+
+    pantalla.blit(
+        numero_puntos,
+        (
+            ANCHO_TABLERO + 25,
+            300
+        )
+    )
+
+    pantalla.blit(
+        texto_nivel,
+        (
+            ANCHO_TABLERO + 25,
+            360
+        )
+    )
+
+    pantalla.blit(
+        numero_nivel,
+        (
+            ANCHO_TABLERO + 25,
+            390
+        )
+    )
+
+    pantalla.blit(
+        texto_lineas,
+        (
+            ANCHO_TABLERO + 25,
+            450
+        )
+    )
+
+    pantalla.blit(
+        numero_lineas,
+        (
+            ANCHO_TABLERO + 25,
+            480
+        )
+    )
 
 
 # =========================
@@ -454,6 +658,21 @@ def dibujar_informacion():
 # =========================
 
 def dibujar_game_over():
+
+    # Oscurecer tablero
+
+    superficie = pygame.Surface(
+        (ANCHO_TABLERO, ALTO)
+    )
+
+    superficie.set_alpha(180)
+
+    superficie.fill(NEGRO)
+
+    pantalla.blit(
+        superficie,
+        (0, 0)
+    )
 
     texto = fuente_titulo.render(
         "GAME OVER",
@@ -473,19 +692,32 @@ def dibujar_game_over():
         BLANCO
     )
 
-    x = (ANCHO - texto.get_width()) // 2
+    x = (
+        ANCHO_TABLERO -
+        texto.get_width()
+    ) // 2
+
     y = ALTO // 2 - 70
 
-    pantalla.blit(texto, (x, y))
+    pantalla.blit(
+        texto,
+        (x, y)
+    )
 
-    x2 = (ANCHO - texto_reinicio.get_width()) // 2
+    x2 = (
+        ANCHO_TABLERO -
+        texto_reinicio.get_width()
+    ) // 2
 
     pantalla.blit(
         texto_reinicio,
         (x2, y + 70)
     )
 
-    x3 = (ANCHO - texto_menu.get_width()) // 2
+    x3 = (
+        ANCHO_TABLERO -
+        texto_menu.get_width()
+    ) // 2
 
     pantalla.blit(
         texto_menu,
@@ -494,7 +726,7 @@ def dibujar_game_over():
 
 
 # =========================
-# REINICIAR JUEGO
+# REINICIAR
 # =========================
 
 def reiniciar_juego():
@@ -520,9 +752,11 @@ def reiniciar_juego():
 
     nueva_pieza()
 
+    crear_proxima_pieza()
+
 
 # ==================================================
-# MENÚ PRINCIPAL
+# MENÚ
 # ==================================================
 
 def dibujar_menu():
@@ -553,7 +787,10 @@ def dibujar_menu():
         BLANCO
     )
 
-    x_titulo = (ANCHO - titulo.get_width()) // 2
+    x_titulo = (
+        ANCHO -
+        titulo.get_width()
+    ) // 2
 
     pantalla.blit(
         titulo,
@@ -562,17 +799,17 @@ def dibujar_menu():
 
     pantalla.blit(
         jugar,
-        (75, 250)
+        (145, 250)
     )
 
     pantalla.blit(
         instrucciones,
-        (35, 320)
+        (105, 320)
     )
 
     pantalla.blit(
         salir,
-        (75, 390)
+        (145, 390)
     )
 
 
@@ -591,19 +828,19 @@ def dibujar_instrucciones():
     )
 
     texto1 = fuente.render(
-        "Flechas izquierda/derecha: mover",
+        "Izquierda / Derecha: mover",
         True,
         BLANCO
     )
 
     texto2 = fuente.render(
-        "Flecha arriba: rotar",
+        "Arriba: rotar",
         True,
         BLANCO
     )
 
     texto3 = fuente.render(
-        "Flecha abajo: bajar",
+        "Abajo: bajar",
         True,
         BLANCO
     )
@@ -620,7 +857,10 @@ def dibujar_instrucciones():
         BLANCO
     )
 
-    x = (ANCHO - titulo.get_width()) // 2
+    x = (
+        ANCHO -
+        titulo.get_width()
+    ) // 2
 
     pantalla.blit(
         titulo,
@@ -629,27 +869,27 @@ def dibujar_instrucciones():
 
     pantalla.blit(
         texto1,
-        (25, 200)
+        (110, 200)
     )
 
     pantalla.blit(
         texto2,
-        (25, 250)
+        (110, 250)
     )
 
     pantalla.blit(
         texto3,
-        (25, 300)
+        (110, 300)
     )
 
     pantalla.blit(
         texto4,
-        (25, 350)
+        (110, 350)
     )
 
     pantalla.blit(
         texto5,
-        (25, 400)
+        (110, 400)
     )
 
 
@@ -660,6 +900,8 @@ def dibujar_instrucciones():
 tablero = crear_tablero()
 
 nueva_pieza()
+
+crear_proxima_pieza()
 
 
 # =========================
@@ -742,28 +984,24 @@ while ejecutando:
 
                 else:
 
-                    # Izquierda
                     if evento.key == pygame.K_LEFT:
 
                         if puede_mover(-1):
                             columna -= 1
 
 
-                    # Derecha
                     if evento.key == pygame.K_RIGHT:
 
                         if puede_mover(1):
                             columna += 1
 
 
-                    # Bajar
                     if evento.key == pygame.K_DOWN:
 
                         if puede_bajar():
                             fila += 1
 
 
-                    # Rotar
                     if evento.key == pygame.K_UP:
 
                         nueva_pieza_rotada = rotar_pieza()
@@ -774,7 +1012,7 @@ while ejecutando:
 
 
     # =========================
-    # ACTUALIZAR JUEGO
+    # CAÍDA
     # =========================
 
     if pantalla_actual == "juego":
@@ -793,7 +1031,47 @@ while ejecutando:
 
                     eliminar_lineas()
 
-                    nueva_pieza()
+                    # La pieza siguiente pasa a ser la actual
+
+                    pieza_actual = pieza_proxima
+                    color_actual = color_proxima
+
+                    global_dummy = 0
+
+                    global_dummy += 1
+
+                    global_dummy = 0
+
+                    # Elegir una nueva próxima pieza
+
+                    indice_proxima = random.randrange(
+                        len(PIEZAS)
+                    )
+
+                    pieza_proxima = PIEZAS[indice_proxima]
+
+                    color_proxima = COLORES_PIEZAS[
+                        indice_proxima
+                    ]
+
+                    fila = 0
+                    columna = 4
+
+                    # Comprobar Game Over
+
+                    for i in range(len(pieza_actual)):
+
+                        for j in range(len(pieza_actual[i])):
+
+                            if pieza_actual[i][j] == 1:
+
+                                if tablero[
+                                    fila + i
+                                ][
+                                    columna + j
+                                ] != 0:
+
+                                    juego_terminado = True
 
                 tiempo_caida = 0
 
@@ -822,7 +1100,7 @@ while ejecutando:
 
             dibujar_pieza()
 
-        dibujar_informacion()
+        dibujar_panel()
 
         if juego_terminado:
 
