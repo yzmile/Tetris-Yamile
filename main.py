@@ -3,6 +3,10 @@ import random
 
 pygame.init()
 
+# =========================
+# CONFIGURACIÓN
+# =========================
+
 TAMANO_BLOQUE = 30
 FILAS = 20
 COLUMNAS = 10
@@ -15,7 +19,11 @@ pygame.display.set_caption("Tetris")
 
 reloj = pygame.time.Clock()
 
-# Colores
+
+# =========================
+# COLORES
+# =========================
+
 NEGRO = (0, 0, 0)
 GRIS = (50, 50, 50)
 BLANCO = (255, 255, 255)
@@ -27,6 +35,15 @@ NARANJA = (255, 140, 0)
 AZUL = (0, 100, 240)
 VERDE = (0, 200, 0)
 ROJO = (240, 0, 0)
+
+
+# =========================
+# FUENTES
+# =========================
+
+fuente = pygame.font.Font(None, 32)
+fuente_titulo = pygame.font.Font(None, 70)
+fuente_grande = pygame.font.Font(None, 45)
 
 
 # =========================
@@ -108,6 +125,13 @@ juego_terminado = False
 
 
 # =========================
+# ESTADO DE LA PANTALLA
+# =========================
+
+pantalla_actual = "menu"
+
+
+# =========================
 # CREAR TABLERO
 # =========================
 
@@ -148,7 +172,6 @@ def nueva_pieza():
     fila = 0
     columna = 4
 
-    # Comprobar si puede aparecer
     for i in range(len(pieza_actual)):
 
         for j in range(len(pieza_actual[i])):
@@ -161,7 +184,7 @@ def nueva_pieza():
 
 
 # =========================
-# ROTAR
+# ROTAR PIEZA
 # =========================
 
 def rotar_pieza():
@@ -405,12 +428,8 @@ def dibujar_pieza():
 
 
 # =========================
-# TEXTO
+# DIBUJAR INFORMACIÓN
 # =========================
-
-fuente = pygame.font.Font(None, 28)
-fuente_game_over = pygame.font.Font(None, 50)
-
 
 def dibujar_informacion():
 
@@ -430,22 +449,32 @@ def dibujar_informacion():
     pantalla.blit(texto_nivel, (5, 30))
 
 
+# =========================
+# GAME OVER
+# =========================
+
 def dibujar_game_over():
 
-    texto = fuente_game_over.render(
+    texto = fuente_titulo.render(
         "GAME OVER",
         True,
         ROJO
     )
 
     texto_reinicio = fuente.render(
-        "Presiona R para reiniciar",
+        "R = Reiniciar",
+        True,
+        BLANCO
+    )
+
+    texto_menu = fuente.render(
+        "ESC = Menú",
         True,
         BLANCO
     )
 
     x = (ANCHO - texto.get_width()) // 2
-    y = ALTO // 2 - 30
+    y = ALTO // 2 - 70
 
     pantalla.blit(texto, (x, y))
 
@@ -453,7 +482,14 @@ def dibujar_game_over():
 
     pantalla.blit(
         texto_reinicio,
-        (x2, y + 50)
+        (x2, y + 70)
+    )
+
+    x3 = (ANCHO - texto_menu.get_width()) // 2
+
+    pantalla.blit(
+        texto_menu,
+        (x3, y + 110)
     )
 
 
@@ -485,6 +521,138 @@ def reiniciar_juego():
     nueva_pieza()
 
 
+# ==================================================
+# MENÚ PRINCIPAL
+# ==================================================
+
+def dibujar_menu():
+
+    pantalla.fill(NEGRO)
+
+    titulo = fuente_titulo.render(
+        "TETRIS",
+        True,
+        CIAN
+    )
+
+    jugar = fuente_grande.render(
+        "1 - JUGAR",
+        True,
+        BLANCO
+    )
+
+    instrucciones = fuente_grande.render(
+        "2 - INSTRUCCIONES",
+        True,
+        BLANCO
+    )
+
+    salir = fuente_grande.render(
+        "3 - SALIR",
+        True,
+        BLANCO
+    )
+
+    x_titulo = (ANCHO - titulo.get_width()) // 2
+
+    pantalla.blit(
+        titulo,
+        (x_titulo, 100)
+    )
+
+    pantalla.blit(
+        jugar,
+        (75, 250)
+    )
+
+    pantalla.blit(
+        instrucciones,
+        (35, 320)
+    )
+
+    pantalla.blit(
+        salir,
+        (75, 390)
+    )
+
+
+# ==================================================
+# INSTRUCCIONES
+# ==================================================
+
+def dibujar_instrucciones():
+
+    pantalla.fill(NEGRO)
+
+    titulo = fuente_grande.render(
+        "INSTRUCCIONES",
+        True,
+        CIAN
+    )
+
+    texto1 = fuente.render(
+        "Flechas izquierda/derecha: mover",
+        True,
+        BLANCO
+    )
+
+    texto2 = fuente.render(
+        "Flecha arriba: rotar",
+        True,
+        BLANCO
+    )
+
+    texto3 = fuente.render(
+        "Flecha abajo: bajar",
+        True,
+        BLANCO
+    )
+
+    texto4 = fuente.render(
+        "R: reiniciar",
+        True,
+        BLANCO
+    )
+
+    texto5 = fuente.render(
+        "ESC: volver al menu",
+        True,
+        BLANCO
+    )
+
+    x = (ANCHO - titulo.get_width()) // 2
+
+    pantalla.blit(
+        titulo,
+        (x, 80)
+    )
+
+    pantalla.blit(
+        texto1,
+        (25, 200)
+    )
+
+    pantalla.blit(
+        texto2,
+        (25, 250)
+    )
+
+    pantalla.blit(
+        texto3,
+        (25, 300)
+    )
+
+    pantalla.blit(
+        texto4,
+        (25, 350)
+    )
+
+    pantalla.blit(
+        texto5,
+        (25, 400)
+    )
+
+
 # =========================
 # INICIAR
 # =========================
@@ -499,6 +667,7 @@ nueva_pieza()
 # =========================
 
 ejecutando = True
+
 
 while ejecutando:
 
@@ -520,86 +689,145 @@ while ejecutando:
 
         if evento.type == pygame.KEYDOWN:
 
-            # Reiniciar
-            if evento.key == pygame.K_r:
+            # =========================
+            # MENÚ
+            # =========================
 
-                if juego_terminado:
+            if pantalla_actual == "menu":
+
+                if evento.key == pygame.K_1:
+
                     reiniciar_juego()
 
-
-            if not juego_terminado:
-
-                # Izquierda
-                if evento.key == pygame.K_LEFT:
-
-                    if puede_mover(-1):
-                        columna -= 1
+                    pantalla_actual = "juego"
 
 
-                # Derecha
-                if evento.key == pygame.K_RIGHT:
+                elif evento.key == pygame.K_2:
 
-                    if puede_mover(1):
-                        columna += 1
+                    pantalla_actual = "instrucciones"
 
 
-                # Bajar
-                if evento.key == pygame.K_DOWN:
+                elif evento.key == pygame.K_3:
 
-                    if puede_bajar():
-                        fila += 1
+                    ejecutando = False
 
 
-                # Rotar
-                if evento.key == pygame.K_UP:
+            # =========================
+            # INSTRUCCIONES
+            # =========================
 
-                    nueva_pieza_rotada = rotar_pieza()
+            elif pantalla_actual == "instrucciones":
 
-                    if puede_rotar(nueva_pieza_rotada):
+                if evento.key == pygame.K_ESCAPE:
 
-                        pieza_actual = nueva_pieza_rotada
+                    pantalla_actual = "menu"
+
+
+            # =========================
+            # JUEGO
+            # =========================
+
+            elif pantalla_actual == "juego":
+
+                if evento.key == pygame.K_ESCAPE:
+
+                    pantalla_actual = "menu"
+
+
+                if juego_terminado:
+
+                    if evento.key == pygame.K_r:
+
+                        reiniciar_juego()
+
+                else:
+
+                    # Izquierda
+                    if evento.key == pygame.K_LEFT:
+
+                        if puede_mover(-1):
+                            columna -= 1
+
+
+                    # Derecha
+                    if evento.key == pygame.K_RIGHT:
+
+                        if puede_mover(1):
+                            columna += 1
+
+
+                    # Bajar
+                    if evento.key == pygame.K_DOWN:
+
+                        if puede_bajar():
+                            fila += 1
+
+
+                    # Rotar
+                    if evento.key == pygame.K_UP:
+
+                        nueva_pieza_rotada = rotar_pieza()
+
+                        if puede_rotar(nueva_pieza_rotada):
+
+                            pieza_actual = nueva_pieza_rotada
 
 
     # =========================
-    # CAÍDA
+    # ACTUALIZAR JUEGO
     # =========================
 
-    if not juego_terminado:
+    if pantalla_actual == "juego":
 
-        if tiempo_caida >= velocidad_caida:
+        if not juego_terminado:
 
-            if puede_bajar():
+            if tiempo_caida >= velocidad_caida:
 
-                fila += 1
+                if puede_bajar():
 
-            else:
+                    fila += 1
 
-                fijar_pieza()
+                else:
 
-                eliminar_lineas()
+                    fijar_pieza()
 
-                nueva_pieza()
+                    eliminar_lineas()
 
-            tiempo_caida = 0
+                    nueva_pieza()
+
+                tiempo_caida = 0
 
 
     # =========================
     # DIBUJAR
     # =========================
 
-    pantalla.fill(NEGRO)
+    if pantalla_actual == "menu":
 
-    dibujar_tablero()
+        dibujar_menu()
 
-    if not juego_terminado:
 
-        dibujar_pieza()
+    elif pantalla_actual == "instrucciones":
 
-    dibujar_informacion()
+        dibujar_instrucciones()
 
-    if juego_terminado:
 
-        dibujar_game_over()
+    elif pantalla_actual == "juego":
+
+        pantalla.fill(NEGRO)
+
+        dibujar_tablero()
+
+        if not juego_terminado:
+
+            dibujar_pieza()
+
+        dibujar_informacion()
+
+        if juego_terminado:
+
+            dibujar_game_over()
+
 
     pygame.display.flip()
 
